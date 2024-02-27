@@ -8,3 +8,7 @@ build/
 
 # Virtual environment
 venv/
+
+# Not public data
+./csv/
+./logs/

@@ -1,14 +1,19 @@
 import tkinter as tk
 
+from logger.logger import AppLogger
+
 
 class InvestMind(tk.Tk):
     def __init__(self):
+        """Initializes the InvestMind application."""
         super().__init__()
+        self.logger = AppLogger("InvestMind")
         self.title("InvestMind")
         self.geometry("600x400")
         self.create_widgets()
 
     def create_widgets(self):
+        """Creates the widgets for the application."""
         self.label = tk.Label(self, text="Welcome to InvestMind!")
         self.label.pack(pady=10)
         self.button = tk.Button(self, text="Start", command=self.start)
