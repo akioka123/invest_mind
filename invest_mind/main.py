@@ -32,18 +32,34 @@ class InvestMind(tk.Tk):
 
         self.price_label = tk.Label(self, text="Price: ")
         self.price_label.pack(pady=10)
+        self.std_label = tk.Label(self, text="Standard Distination:")
+        self.std_label.pack(pady=10)
+        self.single_sigma_label = tk.Label(self, text="1sigma: ")
+        self.single_sigma_label.pack(pady=10)
+        self.double_sigma_label = tk.Label(self, text="2sigma: ")
+        self.double_sigma_label.pack(pady=10)
 
     def predict_montecarlo(self):
         start_date = self.start_date_entry.get()
         end_date = self.end_date_entry.get()
+        start_price = int(self.start_price_entry.get())
         regex = re.compile(r"\d{8}")
         if not regex.fullmatch(start_date) and not regex.fullmatch(end_date):
             self.logger.error("Invalid date format")
             return
 
         montecarlo = MonteCarlo("6768", start_date, end_date, 1000, 252)
-        simulated_prices = montecarlo.get_simulated_prices(1000)
-        self.price_label["text"] = f"Price: {simulated_prices.mean()}"
+        simulated_result = montecarlo.calc_simulated_prices(start_price)
+
+        mean_price = simulated_result["mean_price"]
+        profit_std = simulated_result["std"]
+        single_sigmas = simulated_result["single_sigma"]
+        double_sigmas = simulated_result["double_sigma"]
+
+        self.price_label["text"] = f"Mean Simulated Price: {mean_price}"
+        self.std_label["text"] = f"Standard Distination: {profit_std}"
+        self.single_sigma_label["text"] = f"1sigma: {single_sigmas}"
+        self.double_sigma_label["text"] = f"2sigma: {double_sigmas}"
 
     def create_input_frame(self, label_name):
         input_frame = tk.Frame(self)

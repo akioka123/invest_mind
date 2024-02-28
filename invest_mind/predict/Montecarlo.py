@@ -53,7 +53,7 @@ class MonteCarlo:
     def get_log_returns(self):
         return np.log(self.data["close"] / self.data["close"].shift(1))
 
-    def get_simulated_prices(self, start_price):
+    def calc_simulated_prices(self, start_price):
         simulated_prices = np.zeros(self.num_simulations)
 
         for i in range(self.num_simulations):
@@ -65,7 +65,24 @@ class MonteCarlo:
 
             simulated_prices[i] = current_price[-1]
 
-        self.simulated_prices = simulated_prices
+        simulated_result_df = pd.DataFrame(simulated_prices, columns=["price"])
+        simulated_result_df["profit"] = simulated_result_df["price"] - start_price
+
+        simulated_result = dict()
+        simulated_result["mean_price"] = simulated_result_df["price"].mean()
+        simulated_result["std"] = simulated_result_df["profit"].std()
+        simulated_result["single_sigma"] = (
+            simulated_result["mean_price"] - simulated_result["std"],
+            simulated_result["mean_price"] + simulated_result["std"],
+        )
+        simulated_result["double_sigma"] = (
+            simulated_result["mean_price"] - simulated_result["std"] * 2,
+            simulated_result["mean_price"] + simulated_result["std"] * 2,
+        )
+
+        print(simulated_result_df)
+
+        return simulated_result
 
     def get_return_rate(self):
         rng = np.random.default_rng()
