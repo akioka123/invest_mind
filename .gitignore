@@ -10,5 +10,5 @@ build/
 venv/
 
 # Not public data
-./csv/
-./logs/
+csv/*
+logs/*
