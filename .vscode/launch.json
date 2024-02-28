@@ -10,8 +10,7 @@
       "request": "launch",
       "program": "./invest_mind/main.py",
       "console": "integratedTerminal",
-      "justMyCode": true,
-      "pythonPath": "C:/Users/akino/AppData/Local/pypoetry/Cache/virtualenvs/invest-mind-DdjrCS9U-py3.11/Scripts/python.exe"
+      "justMyCode": true
     }
   ]
 }

@@ -17,19 +17,20 @@ class MonteCarlo:
         "amount_avg_25",
     ]
 
-    def __init__(self, stock, start_date, end_date, num_simulations):
+    def __init__(self, stock, start_date, end_date, num_simulations, term):
         self.stock = stock
         self.start_date = start_date
         self.end_date = end_date
         self.num_simulations = num_simulations
+        self.term = term
         self.data = self.get_data()
+        print(self.data)
         self.log_returns = self.get_log_returns()
-        self.simulated_prices = self.get_simulated_prices()
-        self.mean, self.std = self.get_mean_std()
-        self.simulated_returns = self.get_simulated_returns()
-        self.simulated_portfolios = self.get_simulated_portfolios()
+        print(self.log_returns)
+        self.return_mean, self.return_std = self.get_mean_std()
+        print(self.return_mean, self.return_std)
 
-    def get_data(self):
+    def get_data(self) -> pd.DataFrame:
         df = pd.read_csv(
             f"csv/{self.stock}_{self.start_date}_{self.end_date}.csv",
             index_col="日付",
@@ -50,32 +51,27 @@ class MonteCarlo:
         return df
 
     def get_log_returns(self):
-        return np.log(1 + self.data["close"].pct_change())
+        return np.log(self.data["close"] / self.data["close"].shift(1))
 
-    def get_simulated_prices(self):
-        simulated_prices = pd.DataFrame()
+    def get_simulated_prices(self, start_price):
+        simulated_prices = np.zeros(self.num_simulations)
+
         for i in range(self.num_simulations):
-            simulated_prices[i] = self.data["close"].iloc[-1] * np.exp(
-                self.log_returns.mean()
-                + self.log_returns.std() * np.random.normal(0, 1, len(self.data))
-            )
+            current_price = [start_price]
+            return_rate_df = self.get_return_rate()
 
-        return simulated_prices
+            for return_rate in return_rate_df:
+                current_price.append(current_price[-1] * return_rate)
+
+            simulated_prices[i] = current_price[-1]
+
+        self.simulated_prices = simulated_prices
+
+    def get_return_rate(self):
+        rng = np.random.default_rng()
+        return_rate = rng.lognormal(self.return_mean, self.return_std, self.term)
+
+        return return_rate
 
     def get_mean_std(self):
         return self.log_returns.mean(), self.log_returns.std()
-
-    def get_simulated_returns(self):
-        return np.log(1 + self.simulated_prices.pct_change())
-
-    def get_simulated_portfolios(self):
-        simulated_portfolios = pd.DataFrame()
-        for i in range(self.num_simulations):
-            simulated_portfolios[i] = self.data["close"].iloc[-1] * np.exp(
-                self.mean + self.std * np.random.normal(0, 1, len(self.data))
-            )
-
-        return simulated_portfolios
-
-    def get_simulated_portfolio_returns(self):
-        return np.log(1 + self.simulated_portfolios.pct_change())
