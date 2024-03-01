@@ -10,7 +10,7 @@ class InvestMind(tk.Tk):
         super().__init__()
         self.logger = AppLogger("InvestMind")
         self.title("InvestMind")
-        self.geometry("600x400")
+        self.geometry("600x600")
         self.create_widgets()
 
     def create_widgets(self):

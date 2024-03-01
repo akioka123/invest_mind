@@ -1,38 +1,42 @@
 import pandas as pd
 import numpy as np
+from datetime import datetime as dt
+
+from invest_mind import const
 
 
 class MonteCarlo:
-    column_names = [
-        "open",
-        "high",
-        "cheap",
-        "close",
-        "avg_5",
-        "avg_25",
-        "avg_75",
-        "VWAP",
-        "amount",
-        "amount_avg_5",
-        "amount_avg_25",
-    ]
+    _date_format = "%Y%m%d"
+
+    column_names = const.COLUMN_NAMES
 
     def __init__(self, stock, start_date, end_date, num_simulations, term):
+        # 株式のティック
         self.stock = stock
-        self.start_date = start_date
-        self.end_date = end_date
+        # モンテカルロ法の参考データ取得開始日
+        self.start_date = dt.strptime(start_date, self._date_format)
+        # モンテカルロ法の参考データ取得終了日
+        self.end_date = dt.strptime(end_date, self._date_format)
+        # モンテカルロ法のシミュレーション回数
         self.num_simulations = num_simulations
+        # モンテカルロ法の期間
         self.term = term
+
+        # モンテカルロ法の参考データ
         self.data = self.get_data()
         print(self.data)
+
+        # モンテカルロ法の参考データの対数収益率
         self.log_returns = self.get_log_returns()
         print(self.log_returns)
+
+        # モンテカルロ法の参考データの対数収益率の平均と標準偏差
         self.return_mean, self.return_std = self.get_mean_std()
         print(self.return_mean, self.return_std)
 
     def get_data(self) -> pd.DataFrame:
         df = pd.read_csv(
-            f"csv/{self.stock}_{self.start_date}_{self.end_date}.csv",
+            f"csv/{self.stock}.csv",
             index_col="日付",
             parse_dates=True,
             encoding="SJIS",
@@ -47,6 +51,9 @@ class MonteCarlo:
                 df[name] = (
                     df[name].str.replace(",", "").replace("--", "0").astype(float)
                 )
+
+        # 指定されたstart_dateとend_dateの間のデータのみを取得する
+        df = df.loc[self.start_date : self.end_date]
 
         return df
 
